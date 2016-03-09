@@ -1,5 +1,7 @@
 /** Bluetooth low energy frame parser
  * Copyright 2016 Sylvain Décastel
+ * 
+ * Typical usage : hcidump -i hci0 -R |./bleParser
  */
 
 #include <stdio.h>
