@@ -9,8 +9,8 @@
 
 // Folders definitions
 #define CONFIG_FOLDER "/etc/thiolsTemp/"
-#define VAR_FOLDER "/var/thiolsTemp/"
-#define BACKUP_FOLDER "/usr/share/thiosTemp/backup/"
+#define VAR_FOLDER "/var/libs/thiolsTemp/"
+#define BACKUP_FOLDER "/var/libs/thiosTemp/backup/"
 
 // Files name definitions
 #define DB_FILENAME "thiolsTemp.db"
