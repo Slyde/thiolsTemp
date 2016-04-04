@@ -12,6 +12,9 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "../common.h"
+#include "../libdb.h"
+
 #define ASCII_FRAME_START_CHAR '>'
 
 #define BYTE(b) 0xFF&b
@@ -52,15 +55,15 @@ int convertASCII2Bin(char* pFrame, uint16_t len)
 		MSB = !MSB;
 	}
 
-	printf("convert::Nb of bytes converted : %u\r\n", dest-pFrame);
-	printf("convert::array : ");
-	src = pFrame;
+//	printf("convert::Nb of bytes converted : %u\r\n", dest-pFrame);
+//	printf("convert::array : ");
+//	src = pFrame;
 
-	while(src<dest) {
-		printf("%02.2X ", *src);
-		src++;
-	}
-	printf("\r\n\n");	
+//	while(src<dest) {
+//		printf("%02.2X ", *src);
+//		src++;
+//	}
+//	printf("\r\n\n");	
 
 	return dest-pFrame;
 }
@@ -89,11 +92,11 @@ int decodeFields(char* pBuffer, uint16_t len)
 
 	// get the number of services
 	nbServices = pBuffer[5];
-	printf("Nb services : %u\r\n", nbServices);
+//	printf("Nb services : %u\r\n", nbServices);
 
 	// decode the MAC address
 	memcpy(mac, &pBuffer[7], sizeof(mac));
-	printf("MAC:%02X:%02X:%02X:%02X:%02X:%02X\r\n",BYTE(mac[0]),BYTE(mac[1]),BYTE(mac[2]),BYTE(mac[3]),BYTE(mac[4]),BYTE(mac[5]));
+//	printf("MAC:%02X:%02X:%02X:%02X:%02X:%02X\r\n",BYTE(mac[0]),BYTE(mac[1]),BYTE(mac[2]),BYTE(mac[3]),BYTE(mac[4]),BYTE(mac[5]));
 
 	// advertisement type not checked
 
@@ -105,7 +108,7 @@ int decodeFields(char* pBuffer, uint16_t len)
 		uint16_t service = (p[2]<<8)+p[3];
 		char tmpBuffer[80];
 
-		printf("Nb bytes : %u | Type : 0x%02X | Service %04X\r\n", nbBytes, type, service);
+//		printf("Nb bytes : %u | Type : 0x%02X | Service %04X\r\n", nbBytes, type, service);
 		
 		switch(service) {
 		case 0x4546:
@@ -119,11 +122,11 @@ int decodeFields(char* pBuffer, uint16_t len)
 			uint32_t mantissa = ((uint32_t)p[6]<<16) & 0x00FF0000;
 			mantissa += ((uint32_t)p[5]<<8) & 0x0000FF00;
 			mantissa += (p[4]) & 0x000000FF;
-			printf("Temperature :(0x%06X)  (%u)^(%d) =  %f\r\n",mantissa, mantissa, exponent, IEEE11073_to_float(mantissa, exponent));
+//			printf("Temperature :(0x%06X)  (%u)^(%d) =  %f\r\n",mantissa, mantissa, exponent, IEEE11073_to_float(mantissa, exponent));
 		}break;
 
 		case 0x0F18:
-			printf("Battery level : %u\r\n", p[4]);
+//			printf("Battery level : %u\r\n", p[4]);
 		break;
 
 		}
@@ -135,7 +138,7 @@ int decodeFields(char* pBuffer, uint16_t len)
 	// decode the RSSI
 	{
 		int32_t rssi = -1 & pBuffer[len-1];
-		printf("RSSI : (%02X) %d\r\n", rssi, rssi); 
+//		printf("RSSI : (%02X) %d\r\n", rssi, rssi); 
 	}
 
 	return 0;
