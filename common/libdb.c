@@ -95,7 +95,7 @@ bool db_checkNodeAddr(DB_Handle_t *pHandle, char* macAddr)
 			printf("DB::checkNodeAddr found : %s !!\r\n", pHandle->validNodeAddr);
 			ret = true;
 		} else {
-			printf("DB::checkNodeAddr not found !!\r\n");
+			printf("DB::checkNodeAddr %s not found !!\r\n", macAddr);
 		}
 	}
 
