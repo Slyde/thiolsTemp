@@ -104,7 +104,7 @@ int decodeFields(char* pBuffer, uint16_t len, Point_t *pPoint)
 
 	// get the number of services
 	nbServices = pBuffer[5];
-//	printf("Nb services : %u\r\n", nbServices);
+	printf("Nb services : %u\r\n", nbServices);
 
 	// decode the MAC address
 	memcpy(mac, &pBuffer[7], sizeof(mac));
@@ -120,7 +120,7 @@ int decodeFields(char* pBuffer, uint16_t len, Point_t *pPoint)
 		uint16_t service = (p[2]<<8)+p[3];
 		char tmpBuffer[80];
 
-//		printf("Nb bytes : %u | Type : 0x%02X | Service %04X\r\n", nbBytes, type, service);
+		printf("Nb bytes : %u | Type : 0x%02X | Service %04X\r\n", nbBytes, type, service);
 		
 		switch(service) {
 		case 0x4546:
@@ -135,11 +135,11 @@ int decodeFields(char* pBuffer, uint16_t len, Point_t *pPoint)
 			mantissa += ((uint32_t)p[5]<<8) & 0x0000FF00;
 			mantissa += (p[4]) & 0x000000FF;
 			pPoint->temperature = IEEE11073_to_float(mantissa, exponent);
-//			printf("Temperature :(0x%06X)  (%u)^(%d) =  %f\r\n",mantissa, mantissa, exponent, pPoint->temperature);
+			printf("Temperature :(0x%06X)  (%u)^(%d) =  %f\r\n",mantissa, mantissa, exponent, pPoint->temperature);
 		}break;
 
 		case 0x0F18:
-//			printf("Battery level : %u\r\n", p[4]);
+			printf("Battery level : %u\r\n", p[4]);
 			pPoint->battery = p[4];
 		break;
 
@@ -152,7 +152,7 @@ int decodeFields(char* pBuffer, uint16_t len, Point_t *pPoint)
 	// decode the RSSI
 	{
 		pPoint->rssi = -1 & pBuffer[len-1];
-//		printf("RSSI : (%02X) %d\r\n", pPoint->rssi, pPoint->rssi); 
+		printf("RSSI : (%02X) %d\r\n", pPoint->rssi, pPoint->rssi); 
 	}
 
 	return 0;
