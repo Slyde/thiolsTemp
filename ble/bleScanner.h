@@ -15,6 +15,6 @@
 int bleScanner_init(void);
 
 int bleScanner_getDeviceID(void);
-
+int bleScanner_getDeviceHandle(void);
 
 #endif /* BLESCANNER_H_ */
