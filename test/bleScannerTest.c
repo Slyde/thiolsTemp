@@ -2,6 +2,7 @@
 #include "bleScanner.h"
 
 #include "mocks/Mockhci_lib.h"
+#include "mocks/FakeSocket.h"
 
 TEST_GROUP(bleScanner);
 
@@ -13,6 +14,10 @@ TEST_GROUP_RUNNER(bleScanner)
     RUN_TEST_CASE(bleScanner, InitDeviceId1);
     RUN_TEST_CASE(bleScanner, InitDeviceIdError);
     RUN_TEST_CASE(bleScanner, InitDeviceOpenError);
+    RUN_TEST_CASE(bleScanner, StartScan);
+    RUN_TEST_CASE(bleScanner, StartScanParametersError);
+    RUN_TEST_CASE(bleScanner, StartScanScanEnableError);
+    RUN_TEST_CASE(bleScanner, StartScanSockoptError);
 
 }
 
@@ -109,5 +114,96 @@ TEST(bleScanner, InitDeviceOpenError)
 	ret = bleScanner_init();
 	TEST_ASSERT_EQUAL_INT(-2, ret);
 	check_device_ID_and_handle(-1,-1);
+}
+
+TEST(bleScanner, StartScan)
+{
+	int ret;
+	int devid = 0;
+	int devhandle = 1;
+
+	hci_get_route_ExpectAndReturn(NULL, devid);
+	hci_open_dev_ExpectAndReturn(devid, devhandle);
+
+
+	hci_le_set_scan_parameters_ExpectAndReturn(devhandle, 0x01, htobs(0x0010),
+			htobs(0x0010), 0x00, 0x00, 10000, 0);
+
+	hci_le_set_scan_enable_ExpectAndReturn(devhandle, 0x01, 0, 10000, 0);
+
+	FakeSocket_setSockoptRetValue(0);
+
+	ret = bleScanner_init();
+	TEST_ASSERT_EQUAL_INT(0, ret);
+
+	ret = bleScanner_startScan();
+	TEST_ASSERT_EQUAL_INT(0, ret);
+
+}
+
+TEST(bleScanner, StartScanParametersError)
+{
+	int ret;
+	int devid = 1;
+	int devhandle = 2; // use other devid and handle
+
+	hci_get_route_ExpectAndReturn(NULL, devid);
+	hci_open_dev_ExpectAndReturn(devid, devhandle);
+
+
+	hci_le_set_scan_parameters_ExpectAndReturn(devhandle, 0x01, htobs(0x0010),
+			htobs(0x0010), 0x00, 0x00, 10000, -1);
+
+	ret = bleScanner_init();
+	TEST_ASSERT_EQUAL_INT(0, ret);
+
+	ret = bleScanner_startScan();
+	TEST_ASSERT_EQUAL_INT(-1, ret);
+}
+
+TEST(bleScanner, StartScanScanEnableError)
+{
+	int ret;
+	int devid = 5;
+	int devhandle = 12; // use other devid and handle
+
+	hci_get_route_ExpectAndReturn(NULL, devid);
+	hci_open_dev_ExpectAndReturn(devid, devhandle);
+
+	hci_le_set_scan_parameters_ExpectAndReturn(devhandle, 0x01, htobs(0x0010),
+			htobs(0x0010), 0x00, 0x00, 10000, 0);
+
+	hci_le_set_scan_enable_ExpectAndReturn(devhandle, 0x01, 0, 10000, -1);
+
+	FakeSocket_setSockoptRetValue(0);
+
+	ret = bleScanner_init();
+	TEST_ASSERT_EQUAL_INT(0, ret);
+
+	ret = bleScanner_startScan();
+	TEST_ASSERT_EQUAL_INT(-2, ret);
+}
+
+TEST(bleScanner, StartScanSockoptError)
+{
+	int ret;
+	int devid = 3;
+	int devhandle = 7; // use other devid and handle
+
+	hci_get_route_ExpectAndReturn(NULL, devid);
+	hci_open_dev_ExpectAndReturn(devid, devhandle);
+
+	hci_le_set_scan_parameters_ExpectAndReturn(devhandle, 0x01, htobs(0x0010),
+			htobs(0x0010), 0x00, 0x00, 10000, 0);
+
+	hci_le_set_scan_enable_ExpectAndReturn(devhandle, 0x01, 0, 10000, 0);
+
+	FakeSocket_setSockoptRetValue(-1);
+
+	ret = bleScanner_init();
+	TEST_ASSERT_EQUAL_INT(0, ret);
+
+	ret = bleScanner_startScan();
+	TEST_ASSERT_EQUAL_INT(-3, ret);
 }
 
