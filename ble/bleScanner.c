@@ -5,13 +5,17 @@
  *      Author: sylvain
  */
 
+#include "bleScanner.h"
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 
 static int device_id = -1;
 static int device_handle = -1;
+static bleScanner_evtCb_t evtCb = NULL;
 
 static int open_default_hci_device(void)
 {
@@ -25,6 +29,10 @@ static int open_default_hci_device(void)
 	tmpDeviceHandle = hci_open_dev(tmpDeviceId);
 	if (tmpDeviceHandle < 0)
 		return -2;
+
+	int on = 1;
+	if(ioctl(tmpDeviceHandle, FIONBIO, (char *)&on) < 0)
+		return -3;
 
 	device_id = tmpDeviceId;
 	device_handle = tmpDeviceHandle;
@@ -45,8 +53,9 @@ int bleScanner_init(void)
 	return ret;
 }
 
-int bleScanner_startScan(void)
+int bleScanner_startScan(bleScanner_evtCb_t _evtCb)
 {
+	evtCb = _evtCb;
 
 	if (hci_le_set_scan_parameters(device_handle, 0x01, htobs(0x0010),
 			htobs(0x0010), 0x00, 0x00, 10000) < 0)
@@ -65,6 +74,34 @@ int bleScanner_startScan(void)
 		return -3;
 
 	return 0;
+}
+
+int bleScanner_parseMsgs(void)
+{
+	static char buf[HCI_MAX_FRAME_SIZE];
+	int len;
+	evt_le_meta_event *meta;
+	le_advertising_info *info;
+
+	len = read(device_handle, buf, sizeof(buf));
+
+	if (len > 0) {
+
+		meta =(void *) ( buf + (1 + HCI_EVENT_HDR_SIZE));
+		len -= (1 + HCI_EVENT_HDR_SIZE);
+
+		if (meta->subevent == EVT_LE_ADVERTISING_REPORT) {
+			len -= EVT_LE_META_EVENT_SIZE;
+
+			/* Ignoring multiple reports */
+			info = (le_advertising_info *) (meta->data + EVT_LE_META_EVENT_SIZE);
+
+			if (evtCb)
+				evtCb(info, len);
+		}
+	}
+
+	return len;
 }
 
 int bleScanner_getDeviceID(void)
