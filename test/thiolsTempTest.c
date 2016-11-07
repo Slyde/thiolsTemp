@@ -17,6 +17,7 @@
 static void runAllTests(void)
 {
     RUN_TEST_GROUP(bleScanner);
+    RUN_TEST_GROUP(bleParser);
 }
 
 int main(int argc, const char* argv[])
